@@ -91,7 +91,7 @@
           token = response.id;
           callback(true);
         } else {
-          Checkout.Logger.error(`[mercadopago] Failed to obtain token. params: ${JSON.stringify(tokenLogData())} - response ${JSON.stringify(response)}`);
+          Checkout.Logger.error(`[CamiPay] Failed to obtain token. params: ${JSON.stringify(tokenLogData())} - response ${JSON.stringify(response)}`);
           callback(false);
         }
       }
@@ -149,7 +149,7 @@
         var installments = parceInstallments(response[0].payer_costs)
         var filteredInstallments = [];
         var count = 0;
-        var mpData = Checkout.getData('mercadopago_transparent_card')
+        var mpData = Checkout.getData('camipay_transparent_card')
         var maxInstallmentValue = mpData
           && mpData.supportedPaymentMethods
           && mpData.supportedPaymentMethods.credit_card
@@ -169,7 +169,7 @@
 
         Checkout.setInstallments(filteredInstallments);
       } else {
-        Checkout.Logger.error('[mercadopago] Error on get installments');
+        Checkout.Logger.error('[CamiPay] Error on get installments');
       }
     });
   };
@@ -187,7 +187,7 @@
     var selectedResult = function (selected, _case) {
       var logMsg = '[SharedBin][Bin ' + cardBin + '][Response ' + response.map(toStringResp) + ']'
         + '[Selected ' + toStringResp(selected) + '][Case ' + _case + ']';
-      console.log('[mercadopago] ' + logMsg);
+      console.log('[CamiPay] ' + logMsg);
       return selected;
     };
 
@@ -222,11 +222,11 @@
           }
 
           Checkout.updateFields({
-            method: 'mercadopago_transparent_card',
+            method: 'camipay_transparent_card',
             value: { issuerList: response }
           });
         } else {
-          Checkout.Logger.error('[mercadopago] Error on get bank list');
+          Checkout.Logger.error('[CamiPay] Error on get bank list');
         }
       }
     );
@@ -258,7 +258,7 @@
             setIssuerList();
           } else {
             Checkout.updateFields({
-              method: 'mercadopago_transparent_card',
+              method: 'camipay_transparent_card',
               value: { issuerList: [] }
             });
           }
@@ -266,10 +266,10 @@
           setInstallments();
 
         } catch (e) {
-          Checkout.Logger.error(`[mercadopago] getPaymentMethod error: ${e} data: ${JSON.stringify(response)}`)
+          Checkout.Logger.error(`[CamiPay] getPaymentMethod error: ${e} data: ${JSON.stringify(response)}`)
         }
       } else {
-        Checkout.Logger.error(`[mercadopago] getPaymentMethod status error: ${JSON.stringify(response)}`);
+        Checkout.Logger.error(`[CamiPay] getPaymentMethod status error: ${JSON.stringify(response)}`);
       }
     });
   };
@@ -293,7 +293,7 @@
       sender_hash: null
     };
 
-    Checkout.Logger.info('mercadoPago transparent info', data);
+    Checkout.Logger.info('CamiPay transparent info', data);
     return data;
   };
 
@@ -342,7 +342,7 @@
         error_code: errorCode
       });
     }).catch(function (error) {
-      Checkout.Logger.error(`[mercadopago] processPayment error ${error.message}`);
+      Checkout.Logger.error(`[CamiPay] processPayment error ${error.message}`);
       Mercadopago.clearSession();
       callback({
         success: false,
@@ -352,8 +352,8 @@
   };
 
   var External = PaymentMethods.ExternalPayment({
-    id: 'mercadopago_redirect',
-    name: 'mercadoPago',
+    id: 'camipay_redirect',
+    name: 'camipay_external',
     scripts: 'https://www.mercadopago.com/org-img/jsapi/mptools/buttons/render.js',
     onSubmit: function (callback) {
       processPayment(
@@ -366,8 +366,8 @@
   });
 
   var ExternalPix = PaymentMethods.ExternalPayment({
-    id: 'mercadopago_redirect_pix',
-    name: 'mercadopago_pix',
+    id: 'camipay_redirect_pix',
+    name: 'camipay_pix',
     scripts: 'https://www.mercadopago.com/org-img/jsapi/mptools/buttons/render.js',
     onSubmit: function (callback) {
       processPayment(
@@ -384,15 +384,15 @@
   }
 
   var MercadopagoOffline = PaymentMethods.Transparent.OfflinePayment({
-    id: 'mercadopago_transparent_offline',
-    name: 'mercadopago',
+    id: 'camipay_transparent_offline',
+    name: 'camipay',
     customLabel: getCustomLabel(),
     scripts: scripts,
     fields: {
       billing_address: true
     },
     onLoad: function () {
-      Mercadopago.setPublishableKey(Checkout.getData('mercadopago_transparent_offline').public_key);
+      Mercadopago.setPublishableKey(Checkout.getData('camipay_transparent_offline').public_key);
     },
 
     onSubmit: function (callback) {
@@ -414,8 +414,8 @@
   });
 
   var MercadopagoCredit = PaymentMethods.Transparent.CardPayment({
-    id: 'mercadopago_transparent_card',
-    name: 'mercadopago',
+    id: 'camipay_transparent_card',
+    name: 'camipay',
     scripts: scripts,
     fields: {
       billing_address: true
@@ -440,7 +440,7 @@
     }, 700),
 
     onLoad: function () {
-      Mercadopago.setPublishableKey(Checkout.getData('mercadopago_transparent_card').public_key);
+      Mercadopago.setPublishableKey(Checkout.getData('camipay_transparent_card').public_key);
     },
 
     onSubmit: function (callback) {
